@@ -9,3 +9,6 @@ class JobProfile(BaseModel):
     min_years_experience:float | None = None
     education_requirements:List[str]=[]
     weights:Dict[str,float]
+
+
+
