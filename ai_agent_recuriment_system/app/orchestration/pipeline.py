@@ -12,13 +12,12 @@ class ScreenPipeline:
         results = []
         for cv in cv_text:
            candidate_profile =  self.cv_agent.run(cv)
-           match_result = self.matching_agent.run(candidate_profile,job_profile)
+           match_result = self.matching_agent.run(job_profile,candidate_profile)
            match_result.explanation = self.explanation_agent.run(candidate_profile,job_profile)
            match_result.decision = self.shortlist_agent.run(match_result)
            results.append(match_result)
 
         return sorted(results,key=lambda x:x.final_score,reverse=True)
-
 
 
 

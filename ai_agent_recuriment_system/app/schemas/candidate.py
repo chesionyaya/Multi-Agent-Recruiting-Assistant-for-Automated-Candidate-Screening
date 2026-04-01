@@ -20,4 +20,6 @@ class Candidate_Profile(BaseModel):
     skills: List[str] = []
     education: List[str] = []
     experience: List[Experience_Item] = []
+    project_experience:List[Project_Item] = []
     raw_text: str
+

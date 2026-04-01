@@ -1,13 +1,16 @@
+from platform import machine
+
 from app.agents.cv_parsing_agent import CV_parsing_agent
 from app.agents.jd_understanding_agent import Jd_understanding_agent
+from app.agents.matching_agent import Matching_Agent
 
-# job_text = """
-# We are looking for an NLP Engineer Intern.
-# Required: Python, NLP, Transformers, PyTorch.
-# Preferred: RAG, FastAPI, Docker.
-# At least 1 year of experience in machine learning projects.
-# Bachelor's or Master's in Computer Science, AI, or Data Science.
-# """
+job_text = """
+We are looking for an NLP Engineer Intern.
+Required: Python, NLP, Transformers, PyTorch.
+Preferred: RAG, FastAPI, Docker.
+At least 1 year of experience in machine learning projects.
+Bachelor's or Master's in Computer Science, AI, or Data Science.
+"""
 
 candidate_cv =  """
     Ceqin Lan
@@ -58,8 +61,13 @@ LANGUAGES
 Chinese (Native), English (Fluent)
     """
 
-
+jd_agent = Jd_understanding_agent()
+jd_profile = jd_agent.run(job_texts=job_text)
 
 cv_agent = CV_parsing_agent()
-result = cv_agent.run(candidate_cv)
-print(result.model_dump())
+cv_profile = cv_agent.run(candidate_cv)
+
+match_agent = Matching_Agent()
+match_result = match_agent.run(jd_profile,cv_profile)
+
+print(match_result)
