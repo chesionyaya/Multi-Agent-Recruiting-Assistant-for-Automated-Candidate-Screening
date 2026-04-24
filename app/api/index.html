@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Candidate Screening</title>
+  <style>
+    :root {
+      --bg: linear-gradient(140deg, #f8fbff 0%, #edf7ee 48%, #fff5e8 100%);
+      --card: #ffffff;
+      --ink: #12202f;
+      --muted: #4c5d72;
+      --line: #d9e3ee;
+      --brand: #0f6b73;
+      --brand-soft: #ddf3f5;
+      --warn: #ad4f10;
+      --warn-soft: #fff2e7;
+      --good: #135d3f;
+      --good-soft: #e6f8ef;
+      --shadow: 0 12px 30px rgba(27, 44, 67, 0.12);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+      animation: rise 500ms ease both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      padding: 24px;
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at top right, rgba(15, 107, 115, 0.18), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(230, 170, 72, 0.16), transparent 35%),
+        var(--card);
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      letter-spacing: 0.2px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.06rem;
+    }
+
+    .label {
+      margin: 10px 0 6px;
+      display: block;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    textarea, input[type="number"], input[type="file"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      font: inherit;
+      color: inherit;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 170px;
+      padding: 11px 12px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    input[type="number"], input[type="file"] {
+      padding: 10px 12px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .primary {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .ghost {
+      background: #eef4f8;
+      color: var(--ink);
+    }
+
+    .status {
+      margin-top: 10px;
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    .result-wrap {
+      margin-top: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .result-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 14px;
+      animation: rise 300ms ease both;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .pill-good {
+      background: var(--good-soft);
+      color: var(--good);
+      border-color: #b7ead2;
+    }
+
+    .pill-warn {
+      background: var(--warn-soft);
+      color: var(--warn);
+      border-color: #f4d7be;
+    }
+
+    .mono {
+      font-family: "Menlo", "SFMono-Regular", monospace;
+      font-size: 0.89rem;
+      color: var(--muted);
+    }
+
+    .list {
+      margin: 6px 0 0;
+      padding: 0 0 0 18px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <h1>AI Candidate Screening</h1>
+      <p>上传或粘贴 JD 和 CV，系统会返回候选人的匹配评分、解释和筛选决策。</p>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>输入内容</h2>
+        <label class="label" for="jdText">Job Description (JD)</label>
+        <textarea id="jdText" placeholder="粘贴 JD 文本"></textarea>
+
+        <label class="label" for="jdFile">或上传 JD 文本文件（.txt/.md）</label>
+        <input id="jdFile" type="file" accept=".txt,.md,.csv,.log" />
+
+        <label class="label" for="cvText">Candidate CV 文本</label>
+        <textarea id="cvText" placeholder="粘贴 CV 文本；多个候选人可用一行 --- 分隔"></textarea>
+
+        <label class="label" for="cvFiles">或上传多个 CV 文本文件</label>
+        <input id="cvFiles" type="file" accept=".txt,.md,.csv,.log" multiple />
+
+        <label class="label" for="topK">Top K（可选）</label>
+        <input id="topK" type="number" min="1" placeholder="例如 3" />
+
+        <div class="controls">
+          <button id="submitBtn" class="primary" type="button">开始筛选</button>
+          <button id="fillBtn" class="ghost" type="button">填充示例</button>
+          <button id="clearBtn" class="ghost" type="button">清空</button>
+        </div>
+        <div id="status" class="status"></div>
+      </div>
+
+      <div class="card">
+        <h2>结果展示</h2>
+        <p class="mono">接口：POST /screen</p>
+        <div id="results" class="result-wrap"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const submitBtn = document.getElementById("submitBtn");
+    const fillBtn = document.getElementById("fillBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const jdTextEl = document.getElementById("jdText");
+    const cvTextEl = document.getElementById("cvText");
+    const jdFileEl = document.getElementById("jdFile");
+    const cvFilesEl = document.getElementById("cvFiles");
+    const topKEl = document.getElementById("topK");
+    const statusEl = document.getElementById("status");
+    const resultsEl = document.getElementById("results");
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || "").trim());
+        reader.onerror = () => reject(new Error(`读取文件失败: ${file.name}`));
+        reader.readAsText(file, "utf-8");
+      });
+    }
+
+    function toPercent(v) {
+      const n = Number(v || 0);
+      return `${Math.round(n * 100)}%`;
+    }
+
+    function splitCandidates(text) {
+      return text
+        .split(/\n\s*---+\s*\n/g)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
+    function createPill(text, tone) {
+      const span = document.createElement("span");
+      span.className = `pill ${tone === "good" ? "pill-good" : "pill-warn"}`;
+      span.textContent = text;
+      return span;
+    }
+
+    function createList(items) {
+      const ul = document.createElement("ul");
+      ul.className = "list";
+      if (!items || items.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "无";
+        ul.appendChild(li);
+        return ul;
+      }
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        ul.appendChild(li);
+      });
+      return ul;
+    }
+
+    function renderResults(data) {
+      resultsEl.innerHTML = "";
+      if (!Array.isArray(data) || data.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent = "暂无结果。";
+        empty.className = "mono";
+        resultsEl.appendChild(empty);
+        return;
+      }
+
+      data.forEach((r) => {
+        const card = document.createElement("article");
+        card.className = "result-card";
+
+        const topRow = document.createElement("div");
+        topRow.className = "row";
+        topRow.appendChild(createPill(`Candidate: ${r.candidate_name || "Unknown"}`, "good"));
+        topRow.appendChild(createPill(`Decision: ${r.decision || "N/A"}`, r.decision === "Shortlist" ? "good" : "warn"));
+        topRow.appendChild(createPill(`Final: ${toPercent(r.final_score)}`, "good"));
+        card.appendChild(topRow);
+
+        const scoreRow = document.createElement("div");
+        scoreRow.className = "row mono";
+        scoreRow.textContent =
+          `skills ${toPercent(r.skill_score)} | experience ${toPercent(r.experience_score)} | projects ${toPercent(r.project_score)} | education ${toPercent(r.education_score)}`;
+        card.appendChild(scoreRow);
+
+        const exp = document.createElement("p");
+        exp.className = "mono";
+        exp.textContent = r.explanation || "暂无 explanation";
+        card.appendChild(exp);
+
+        const matchedTitle = document.createElement("strong");
+        matchedTitle.textContent = "Matched Skills";
+        card.appendChild(matchedTitle);
+        card.appendChild(createList(r.matched_skills || []));
+
+        const missingTitle = document.createElement("strong");
+        missingTitle.textContent = "Missing Skills";
+        card.appendChild(missingTitle);
+        card.appendChild(createList(r.missing_skills || []));
+
+        resultsEl.appendChild(card);
+      });
+    }
+
+    fillBtn.addEventListener("click", () => {
+      jdTextEl.value = "We are looking for an NLP Engineer Intern. Required: Python, NLP, Transformers, PyTorch. Preferred: RAG, FastAPI, Docker. At least 1 year of experience in machine learning projects. Bachelor's or Master's in Computer Science, AI, or Data Science.";
+      cvTextEl.value = "Alex Zhang\\n\\nSKILLS\\nPython, NLP, Transformers, PyTorch, FastAPI, Docker\\n\\nWORK EXPERIENCE\\nML Intern\\nACME\\n2024 - Present\\n\\nEDUCATION\\nBSc in Computer Science";
+      topKEl.value = "1";
+      setStatus("示例内容已填充。");
+    });
+
+    clearBtn.addEventListener("click", () => {
+      jdTextEl.value = "";
+      cvTextEl.value = "";
+      jdFileEl.value = "";
+      cvFilesEl.value = "";
+      topKEl.value = "";
+      resultsEl.innerHTML = "";
+      setStatus("已清空。");
+    });
+
+    submitBtn.addEventListener("click", async () => {
+      try {
+        submitBtn.disabled = true;
+        setStatus("正在读取输入并调用接口...");
+
+        let jdText = jdTextEl.value.trim();
+        if (jdFileEl.files.length > 0) {
+          jdText = await readFileAsText(jdFileEl.files[0]);
+        }
+
+        const candidates = [];
+        const pasted = cvTextEl.value.trim();
+        if (pasted) {
+          candidates.push(...splitCandidates(pasted));
+        }
+
+        if (cvFilesEl.files.length > 0) {
+          const files = Array.from(cvFilesEl.files);
+          const texts = await Promise.all(files.map(readFileAsText));
+          candidates.push(...texts.filter(Boolean));
+        }
+
+        if (!jdText) {
+          throw new Error("请先提供 JD 文本或 JD 文件。");
+        }
+        if (candidates.length === 0) {
+          throw new Error("请至少提供一份 CV 文本或 CV 文件。");
+        }
+
+        const topKRaw = topKEl.value.trim();
+        const payload = {
+          jd_text: jdText,
+          cv_text: candidates,
+          top_k: topKRaw ? Number(topKRaw) : null,
+        };
+
+        const res = await fetch("/screen", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`接口调用失败 (${res.status}): ${errText}`);
+        }
+
+        const data = await res.json();
+        renderResults(data);
+        setStatus(`完成，共返回 ${data.length} 条结果。`);
+      } catch (err) {
+        setStatus(err instanceof Error ? err.message : "未知错误");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
