@@ -10,7 +10,7 @@ class Experience_Item(BaseModel):
 
 
 class Project_Item(BaseModel):
-    name: str
+    name: str|None =None
     description: str | None = None
     technologies: List[str] = []
 

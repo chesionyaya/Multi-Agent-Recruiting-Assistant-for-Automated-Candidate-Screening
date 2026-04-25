@@ -133,7 +133,7 @@ class Jd_understanding_agent:
             match = re.search(pattern,text)
             if match:
                 experience_years = match.group(1)
-                return experience_years
+                return float(experience_years)
 
         return None
 
